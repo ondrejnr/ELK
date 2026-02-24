@@ -1,37 +1,29 @@
----
-- name: Deploy Kibana Dashboard
-  hosts: localhost
-  connection: local
-  tasks:
-    - name: Update Kibana Deployment
-      kubernetes.core.k8s:
-        state: present
-        definition:
-          apiVersion: apps/v1
-          kind: Deployment
-          metadata:
-            name: kibana
-            namespace: logging
-          spec:
-            replicas: 1
-            selector:
-              matchLabels:
-                app: kibana
-            template:
-              metadata:
-                labels:
-                  app: kibana
-              spec:
-                containers:
-                - name: kibana
-                  image: docker.elastic.co/kibana/kibana:7.17.0
-                  env:
-                    - name: ELASTICSEARCH_HOSTS
-                      value: "http://elasticsearch.logging.svc.cluster.local:9200"
-                  ports:
-                  - containerPort: 5601
-                  resources:
-                    limits:
-                      memory: "1Gi"
-                    requests:
-                      memory: "800Mi"
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kibana
+  namespace: logging
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kibana
+  template:
+    metadata:
+      labels:
+        app: kibana
+    spec:
+      containers:
+      # 1. Kibana Container
+      - name: kibana
+        image: docker.elastic.co/kibana/kibana:7.17.0
+        ports:
+        - containerPort: 5601
+        env:
+        - name: ELASTICSEARCH_HOSTS
+          value: "http://elasticsearch.logging.svc.cluster.local:9200"
+      
+      # 2. Setup Container (Sidecar)
+      - name: kibana-setup
+        image: ondrejnr/elk-config:latest
+        imagePullPolicy: Always
