@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+  namespace: default
+data:
+  nginx.conf: |
+    user nginx;
+    worker_processes auto;
+    events { worker_connections 1024; }
+    http {
+        # Náš SRE formát logov pre Kibanu zostáva!
+        log_format sre_format '\$remote_addr - \$remote_user [\$time_local] "\$request" '
+                             '\$status \$body_bytes_sent "\$http_referer" '
+                             '"\$http_user_agent" rt=\$request_time urt=\$upstream_response_time';
+        access_log /var/log/nginx/access.log sre_format;
+        
+        server {
+            listen 80;
+            
+            # 1. Bežný web
+            location / {
+                root /usr/share/nginx/html;
+                index index.html;
+            }
+
+            # 2. Exponovanie metrík pre Prometheus
+            location /stub_status {
+                stub_status;
+                allow all; # V produkcii by sme sem pustili len IP Promethea
+            }
+
+            # 3. Naša "pasca" pre Alertmanager - úmyselná kritická chyba
+            location /api/payment {
+                return 500 "Kriticka chyba databazy pri platbe!";
+            }
+        }
+    }
