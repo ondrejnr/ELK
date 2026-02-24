@@ -1,0 +1,18 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kibana-host-ingress
+  namespace: logging
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: kibana.35.198.73.31.nip.io
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: kibana-service
+            port:
+              number: 5601

@@ -3,7 +3,7 @@
   hosts: localhost
   connection: local
   tasks:
-    - name: Deploy Kibana
+    - name: Update Kibana Deployment
       kubernetes.core.k8s:
         state: present
         definition:
@@ -32,21 +32,6 @@
                   - containerPort: 5601
                   resources:
                     limits:
-                      memory: "512Mi"
-
-    - name: Create Kibana Service
-      kubernetes.core.k8s:
-        state: present
-        definition:
-          apiVersion: v1
-          kind: Service
-          metadata:
-            name: kibana-service
-            namespace: logging
-          spec:
-            type: ClusterIP
-            selector:
-              app: kibana
-            ports:
-            - port: 5601
-              targetPort: 5601
+                      memory: "1Gi"
+                    requests:
+                      memory: "800Mi"
