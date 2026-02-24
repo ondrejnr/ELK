@@ -25,5 +25,5 @@ spec:
       
       # 2. Setup Container (Sidecar)
       - name: kibana-setup
-        image: ondrejnr/elk-config:latest
+        image: ondrejnr1/elk-config:latest
         imagePullPolicy: Always
