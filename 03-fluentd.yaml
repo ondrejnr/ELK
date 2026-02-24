@@ -14,6 +14,7 @@ data:
       pos_file /var/log/fluentd-containers.log.pos
       tag kubernetes.*
       read_from_head false
+      exclude_path ["/var/log/containers/*fluentd*.log","/var/log/containers/*kibana*.log","/var/log/containers/*elasticsearch*.log","/var/log/containers/*ingress-nginx*.log"]
       <parse>
         @type regexp
         expression /^(?<time>.+) (?<stream>stdout|stderr) [^ ]+ (?<log>.*)$/
