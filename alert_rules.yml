@@ -1,0 +1,49 @@
+groups:
+- name: nginx
+  rules:
+  - alert: NginxDown
+    expr: nginx_up == 0
+    for: 30s
+    labels:
+      severity: critical
+    annotations:
+      summary: "Nginx je DOWN"
+      description: "Nginx pod {{ $labels.instance }} neodpovedá."
+
+  - alert: HighErrorRate
+    expr: rate(nginx_http_requests_total{status=~"5.."}[1m]) > 0.5
+    for: 1m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Vysoký počet chýb 5xx"
+      description: "Viac ako 0.5 chýb/s za poslednu minútu."
+
+  - alert: HighRequestRate
+    expr: rate(nginx_http_requests_total[1m]) > 10
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Vysoká prevádzka na Nginx"
+      description: "Viac ako 10 requestov/s za posledné 2 minúty."
+
+- name: system
+  rules:
+  - alert: HighMemoryUsage
+    expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100 > 85
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Vysoké využitie RAM"
+      description: "RAM využitie je nad 85%."
+
+  - alert: HighCpuUsage
+    expr: 100 - (avg(rate(node_cpu_seconds_total{mode="idle"}[2m])) * 100) > 80
+    for: 2m
+    labels:
+      severity: warning
+    annotations:
+      summary: "Vysoké využitie CPU"
+      description: "CPU využitie je nad 80%."
