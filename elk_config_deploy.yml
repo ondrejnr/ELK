@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: elk-config-app
+  namespace: logging
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: elk-config
+  template:
+    metadata:
+      labels:
+        app: elk-config
+    spec:
+      containers:
+      - name: elk-config-container
+        image: ondrejnr/elk-config:latest # Tvoj nový image z Docker Hubu
+        imagePullPolicy: Always # Zabezpečí, že pri reštarte stiahne vždy najnovšiu verziu
